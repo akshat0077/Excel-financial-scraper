@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Data Scraper</title>
+    <style>
+        :root {
+            --color-primary: #2180E1;
+            --color-primary-hover: #1d74ba;
+            --color-surface: #f5f5f5;
+            --color-text: #1a1a1a;
+            --color-text-secondary: #626262;
+            --color-border: #e0e0e0;
+            --color-success: #22c55e;
+            --color-error: #c0152f;
+            --color-warning: #a84b2f;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: var(--font-family);
+            background: var(--color-surface);
+            color: var(--color-text);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .input-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            font-family: var(--font-family);
+            font-size: 14px;
+            color: var(--color-text);
+        }
+
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(33, 128, 141, 0.1);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--color-border);
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 400;
+            font-size: 13px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 150ms ease;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-surface);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            display: none;
+            margin-top: 20px;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .alert-error {
+            background: rgba(192, 21, 47, 0.1);
+            color: var(--color-error);
+            border: 1px solid rgba(192, 21, 47, 0.2);
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--color-success);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+
+        .data-table thead {
+            background: var(--color-surface);
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .data-table th {
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--color-surface);
+        }
+
+        .data-table td {
+            color: var(--color-text-secondary);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--color-border);
+            border-top: 2px solid var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-top: 4px;
+        }
+
+        .export-btn {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .metric-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .metric-category {
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            padding: 12px;
+            background: var(--color-surface);
+        }
+
+        .metric-category h4 {
+            margin: 0 0 12px 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .category-checkboxes {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0;
+            }
+
+            .checkbox-group {
+                grid-template-columns: 1fr;
+                max-height: 400px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .metric-categories {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Financial Data Scraper</h1>
+            <p class="subtitle">Extract ANY financial metric from yfinance for any company</p>
+        </header>
+
+        <div class="input-section">
+            <form id="scraperForm">
+                <div class="form-group">
+                    <label for="companyTicker">Company Ticker *</label>
+                    <input 
+                        type="text" 
+                        id="companyTicker" 
+                        placeholder="e.g., TCS, RELIANCE, HDFCBANK" 
+                        required
+                    >
+                    <p class="help-text">Enter ticker symbol (works for Indian companies)</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="years">Number of Years *</label>
+                    <input 
+                        type="text" 
+                        id="years" 
+                        placeholder="e.g., 5" 
+                        value="5"
+                        required
+                    >
+                    <p class="help-text">How many years of historical data do you need?</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Financial Metrics * (Click to select)</label>
+                    <div class="metric-categories">
+                        <!-- Income Statement -->
+                        <div class="metric-category">
+                            <h4>Income Statement</h4>
+                            <div class="category-checkboxes">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Total Revenue" class="metric-checkbox">
+                                    <label>Total Revenue</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Operating Revenue" class="metric-checkbox">
+                                    <label>Operating Revenue</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Cost Of Revenue" class="metric-checkbox">
+                                    <label>Cost Of Revenue</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Gross Profit" class="metric-checkbox">
+                                    <label>Gross Profit</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Operating Income" class="metric-checkbox">
+                                    <label>Operating Income</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="EBITDA" class="metric-checkbox">
+                                    <label>EBITDA</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Net Income" class="metric-checkbox">
+                                    <label>Net Income</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Diluted EPS" class="metric-checkbox">
+                                    <label>Diluted EPS</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Balance Sheet -->
+                        <div class="metric-category">
+                            <h4>Balance Sheet</h4>
+                            <div class="category-checkboxes">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Total Assets" class="metric-checkbox">
+                                    <label>Total Assets</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Current Assets" class="metric-checkbox">
+                                    <label>Current Assets</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Total Non Current Assets" class="metric-checkbox">
+                                    <label>Total Non Current Assets</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Cash And Cash Equivalents" class="metric-checkbox">
+                                    <label>Cash And Cash Equivalents</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Accounts Receivable" class="metric-checkbox">
+                                    <label>Accounts Receivable</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Total Debt" class="metric-checkbox">
+                                    <label>Total Debt</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Stockholders Equity" class="metric-checkbox">
+                                    <label>Stockholders Equity</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Net PPE" class="metric-checkbox">
+                                    <label>Net PPE</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Goodwill" class="metric-checkbox">
+                                    <label>Goodwill</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cash Flow -->
+                        <div class="metric-category">
+                            <h4>Cash Flow</h4>
+                            <div class="category-checkboxes">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Operating Cash Flow" class="metric-checkbox">
+                                    <label>Operating Cash Flow</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Free Cash Flow" class="metric-checkbox">
+                                    <label>Free Cash Flow</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Investing Cash Flow" class="metric-checkbox">
+                                    <label>Investing Cash Flow</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Financing Cash Flow" class="metric-checkbox">
+                                    <label>Financing Cash Flow</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Capital Expenditure" class="metric-checkbox">
+                                    <label>Capital Expenditure</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" value="Depreciation And Amortization" class="metric-checkbox">
+                                    <label>Depreciation And Amortization</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="help-text">Select at least one metric</p>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Fetch Data</button>
+                    <button type="button" class="btn-secondary" onclick="selectAll()">Select All</button>
+                    <button type="button" class="btn-secondary" onclick="deselectAll()">Deselect All</button>
+                    <button type="reset" class="btn-secondary">Clear Form</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div id="statusMessage"></div>
+            <div id="resultsContainer"></div>
+            <div class="export-btn">
+                <button class="btn-primary" onclick="copyToClipboard()">Copy as JSON</button>
+                <button class="btn-secondary" onclick="downloadCSV()">Download as CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = null;
+        let currentMetrics = null;
+
+        document.getElementById('scraperForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetchData();
+        });
+
+        function selectAll() {
+            document.querySelectorAll('.metric-checkbox').forEach(cb => cb.checked = true);
+        }
+
+        function deselectAll() {
+            document.querySelectorAll('.metric-checkbox').forEach(cb => cb.checked = false);
+        }
+
+        async function fetchData() {
+            const ticker = document.getElementById('companyTicker').value.trim().toUpperCase();
+            const years = parseInt(document.getElementById('years').value);
+            
+            const metrics = Array.from(document.querySelectorAll('.metric-checkbox:checked'))
+                .map(cb => cb.value);
+
+            if (!ticker || !years || metrics.length === 0) {
+                showError('Please fill in all fields and select at least one metric');
+                return;
+            }
+
+            if (years < 1 || years > 50) {
+                showError('Years must be between 1 and 50');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch('/fetch_financials', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticker, metrics, years })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    showError(result.error || 'Failed to fetch data. Please try again.');
+                    return;
+                }
+
+                currentData = result.data;
+                currentMetrics = metrics;
+                displayResults(result);
+                showSuccess(`Successfully fetched data for ${result.ticker}`);
+
+            } catch (err) {
+                showError(`Error: ${err.message}. Make sure the backend is running on localhost:5000`);
+            }
+        }
+
+        function displayResults(result) {
+            const { data, metrics } = result;
+
+            if (!data || data.length === 0) {
+                showError('No data returned. Company might not have available data.');
+                return;
+            }
+
+            let html = `<h3>${result.ticker} - Financial Data</h3>`;
+            html += '<div style="overflow-x: auto;"><table class="data-table"><thead><tr><th>Year</th>';
+
+            metrics.forEach(m => {
+                html += `<th>${m}</th>`;
+            });
+
+            html += '</tr></thead><tbody>';
+
+            data.forEach(row => {
+                html += '<tr>';
+                html += `<td><strong>${row.year}</strong></td>`;
+                metrics.forEach(m => {
+                    const value = row[m];
+                    html += `<td>${formatNumber(value)}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+
+            document.getElementById('resultsContainer').innerHTML = html;
+            document.getElementById('resultsSection').classList.add('active');
+        }
+
+        function formatNumber(value) {
+            if (value === null || value === undefined) return 'N/A';
+            if (typeof value === 'number') {
+                if (Math.abs(value) >= 1e9) {
+                    return (value / 1e9).toFixed(2) + 'B';
+                } else if (Math.abs(value) >= 1e6) {
+                    return (value / 1e6).toFixed(2) + 'M';
+                } else if (Math.abs(value) >= 1e3) {
+                    return (value / 1e3).toFixed(2) + 'K';
+                }
+                return value.toFixed(2);
+            }
+            return value;
+        }
+
+        function showLoading() {
+            document.getElementById('statusMessage').innerHTML = 
+                '<div class="status"><span class="loading"></span><span>Fetching data...</span></div>';
+        }
+
+        function showError(message) {
+            document.getElementById('statusMessage').innerHTML = 
+                `<div class="alert alert-error">${message}</div>`;
+            document.getElementById('resultsSection').classList.remove('active');
+        }
+
+        function showSuccess(message) {
+            document.getElementById('statusMessage').innerHTML = 
+                `<div class="alert alert-success">${message}</div>`;
+        }
+
+        function copyToClipboard() {
+            if (!currentData) return;
+            const json = JSON.stringify(currentData, null, 2);
+            navigator.clipboard.writeText(json).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+
+        function downloadCSV() {
+            if (!currentData || !currentMetrics) return;
+
+            let csv = 'Year,' + currentMetrics.join(',') + '\n';
+
+            currentData.forEach(row => {
+                csv += row.year + ',' + currentMetrics.map(m => {
+                    const val = row[m];
+                    return (val !== null && val !== undefined) ? val : '';
+                }).join(',') + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'financial_data.csv';
+            a.click();
+        }
+    </script>
+</body>
+</html>
