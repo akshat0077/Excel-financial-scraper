@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Financial Data Scraper</title>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <script src="taskpane.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 16px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        h1 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #1a1a1a;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2180E1;
+            box-shadow: 0 0 0 3px rgba(33, 128, 141, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #2180E1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 8px;
+            transition: background 150ms;
+        }
+        
+        button:hover {
+            background: #1d74ba;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .status {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            display: none;
+        }
+        
+        .status.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            display: block;
+        }
+        
+        .status.error {
+            background: rgba(192, 21, 47, 0.1);
+            color: #c0152f;
+            border: 1px solid rgba(192, 21, 47, 0.2);
+            display: block;
+        }
+        
+        .metric-checkboxes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 6px;
+            margin-bottom: 0;
+        }
+        
+        .checkbox-item label {
+            margin: 0;
+            font-weight: 400;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Financial Data</h1>
+        
+        <div class="form-group">
+            <label>Company Ticker *</label>
+            <input type="text" id="ticker" placeholder="e.g., TCS, RELIANCE" />
+        </div>
+        
+        <div class="form-group">
+            <label>Number of Years *</label>
+            <input type="number" id="years" value="5" min="1" max="20" />
+        </div>
+        
+        <div class="form-group">
+            <label>Select Metrics *</label>
+            <div class="metric-checkboxes">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="metric-revenue" value="Total Revenue">
+                    <label for="metric-revenue">Revenue</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="metric-ebitda" value="EBITDA">
+                    <label for="metric-ebitda">EBITDA</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="metric-income" value="Net Income">
+                    <label for="metric-income">Net Income</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="metric-assets" value="Total Assets">
+                    <label for="metric-assets">Assets</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="metric-equity" value="Stockholders Equity">
+                    <label for="metric-equity">Equity</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="metric-ocf" value="Operating Cash Flow">
+                    <label for="metric-ocf">Op. Cash Flow</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="metric-fcf" value="Free Cash Flow">
+                    <label for="metric-fcf">Free Cash Flow</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="metric-debt" value="Total Debt">
+                    <label for="metric-debt">Total Debt</label>
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="insertData()">📥 Insert Data into Excel</button>
+        <div id="status" class="status"></div>
+    </div>
+</body>
+</html>
