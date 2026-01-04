@@ -7,7 +7,7 @@ A full-stack web application and Excel add-in for extracting financial metrics f
 ## 🎯 Features
 
 - **Extract Any Financial Metric** - Access data from Income Statement, Balance Sheet, and Cash Flow statements
-- **Multi-Year Historical Data** - Fetch 1-50 years of financial history for any ticker
+- **Multi-Year Historical Data** - Fetch 1-10 years of financial history for any ticker
 - **User-Friendly Interface** - Organized metric selection by financial statement category
 - **Export Options** - Download results as CSV or copy as JSON
 - **Excel Integration** - Designed to work as an Excel Online task pane add-in (with HTTPS deployment)
